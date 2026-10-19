@@ -3,7 +3,8 @@ import { CartContext } from "@/context/CartContext";
 import { useContext } from "react";
 
 const CartPage = () => {
-  const { cart, addToCart, decrease, deleteFromCart, total } = useContext(CartContext);
+  const { cart, addToCart, decrease, deleteFromCart, total } =
+    useContext(CartContext);
 
   const totalCount = cart.reduce((sum, item) => sum + item.count, 0);
 
@@ -13,7 +14,7 @@ const CartPage = () => {
         <h1>Корзина</h1>
       </div>
 
-      {cart.length > 0 ? (
+      {cart.length > 0 ?
         <div className="flex flex-col w-full my-16">
           {cart.map((product) => (
             <CartItem
@@ -32,7 +33,12 @@ const CartPage = () => {
             <div className="flex flex-col">
               <span className="text-xl font-semibold text-primary">Итого:</span>
               <span className="text-sm text-tertiary">
-                {totalCount} {totalCount === 1 ? "товар" : totalCount < 5 ? "товара" : "товаров"}
+                {totalCount}{" "}
+                {totalCount === 1 ?
+                  "товар"
+                : totalCount < 5 ?
+                  "товара"
+                : "товаров"}
               </span>
             </div>
             <span className="text-2xl font-bold text-fg-brand-primary">
@@ -40,11 +46,10 @@ const CartPage = () => {
             </span>
           </div>
         </div>
-      ) : (
-        <div className="flex flex-1 items-center justify-center">
+      : <div className="flex flex-1 items-center justify-center">
           <p>Корзина пуста</p>
         </div>
-      )}
+      }
     </section>
   );
 };

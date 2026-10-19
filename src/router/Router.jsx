@@ -9,6 +9,14 @@ const Router = () => {
       <Route path="/" element={<RootLayout />}>
         <Route index element={<HomePage />} />
         <Route path="cart" element={<CartPage />} />
+        <Route
+          path="dashboard"
+          element={
+            <div className="mx-auto max-w-container prose">
+              <h1 className="p-8">Dashboard</h1>
+            </div>
+          }
+        />
       </Route>
     </Routes>
   );

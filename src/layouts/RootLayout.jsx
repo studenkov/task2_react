@@ -1,9 +1,10 @@
 import { HeaderNavigationBase } from "@/components/application/app-navigation/header-navigation";
+import { Button } from "@/components/base/buttons/button";
 import { ButtonUtility } from "@/components/base/buttons/button-utility";
 import { ThemeContext } from "@/context/ThemeContext";
 import { Moon01, Sun } from "@untitledui/icons";
 import { useContext } from "react";
-import { Outlet } from "react-router";
+import { Outlet, useNavigate } from "react-router";
 
 export default function RootLayout() {
   const headerItems = [
@@ -12,6 +13,17 @@ export default function RootLayout() {
   ];
 
   const { theme, toggleTheme } = useContext(ThemeContext);
+  const navigate = useNavigate();
+
+  function HandleLogin() {
+    const isAuth = true;
+
+    if (isAuth) {
+      navigate("/dashboard");
+    } else {
+      navigate("/");
+    }
+  }
 
   return (
     <>
@@ -19,7 +31,7 @@ export default function RootLayout() {
         <HeaderNavigationBase
           items={headerItems}
           actions={
-            <div>
+            <div className="flex items-center gap-4">
               <ButtonUtility
                 size="xs"
                 color="tertiary"
@@ -27,6 +39,9 @@ export default function RootLayout() {
                 icon={theme === "light" ? Moon01 : Sun}
                 onClick={toggleTheme}
               />
+              <Button size="xs" color="primary" onClick={HandleLogin}>
+                Войти
+              </Button>
             </div>
           }
         />

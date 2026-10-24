@@ -233,10 +233,14 @@ export const Button: {
         </>
     );
 
+    const { onClick, onPress, ...restProps } = props as AriaButtonProps & { onClick?: () => void };
+    const handlePress = onPress || onClick;
+
     const commonProps = {
         "data-loading": loading ? true : undefined,
         "data-icon-only": isIcon ? true : undefined,
-        ...props,
+        ...restProps,
+        onPress: handlePress,
         isDisabled: disabled,
         className: cx(
             styles.common.root,

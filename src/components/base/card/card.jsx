@@ -1,25 +1,42 @@
-import { cx } from "@/utils/cx";
-import { Button } from "../buttons/button";
+import { cx } from '@/utils/cx';
+import { Button } from '../buttons/button';
 
-export const Card = ({ image, title, price, onAddClick, className }) => {
+export const Card = ({
+  image,
+  title,
+  price,
+  originalPrice,
+  onAddClick,
+  className,
+}) => {
   return (
     <div
       className={cx(
-        "flex flex-col rounded-xl ring-1 ring-secondary cursor-pointer",
+        'flex flex-col rounded-xl ring-1 ring-secondary cursor-pointer',
         className,
-      )}
-    >
+      )}>
       <img
         className="aspect-square rounded-t-xl mb-4"
         src={image}
         alt={title}
       />
       <div className="w-full flex flex-col px-4">
-        <p className="w-full py-2 text-lg font-semibold text-primary hover:text-fg-brand-secondary">
+        <p className="w-full py-2 text-lg font-semibold text-primary hover:text-fg-brand-secondary truncate">
           {title}
         </p>
-        <p className="text-xl font-black text-fg-brand-primary">{price} ₽</p>
+
+        <div className="flex items-baseline gap-2">
+          <span className="text-xl font-bold text-fg-brand-primary">
+            {Number(price).toLocaleString('ru-RU')} ₽
+          </span>
+          {originalPrice && (
+            <span className="text-xs text-tertiary line-through">
+              {Number(originalPrice).toLocaleString('ru-RU')} ₽
+            </span>
+          )}
+        </div>
       </div>
+
       <Button size="md" className="m-4" onClick={onAddClick}>
         В корзину
       </Button>

@@ -1,19 +1,18 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from 'react';
 
 export const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark-mode', theme === 'dark');
+  }, [theme]);
 
   function toggleTheme() {
     setTheme((prevTheme) => {
-      const nextTheme = prevTheme === "light" ? "dark" : "light";
-
-      document.documentElement.classList.toggle(
-        "dark-mode",
-        nextTheme === "dark",
-      );
-
+      const nextTheme = prevTheme === 'light' ? 'dark' : 'light';
+      localStorage.setItem('theme', nextTheme);
       return nextTheme;
     });
   }

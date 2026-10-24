@@ -54,9 +54,13 @@ export const ButtonUtility: {
     (props: LinkProps): ReactElement<LinkProps>;
     (props: ButtonProps): ReactElement<ButtonProps>;
 } = ({ tooltip, className, isDisabled, icon: Icon, size = "sm", color = "secondary", tooltipPlacement = "top", ...props }) => {
+    const { onClick, onPress, ...restProps } = props as AriaButtonProps & { onClick?: () => void };
+    const handlePress = onPress || onClick;
+
     const commonProps = {
         "aria-label": tooltip,
-        ...props,
+        ...restProps,
+        onPress: handlePress,
         isDisabled,
         className: cx(
             "group relative inline-flex h-max cursor-pointer items-center justify-center rounded-md p-1.5 outline-focus-ring transition duration-100 ease-linear focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50",

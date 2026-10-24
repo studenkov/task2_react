@@ -1,6 +1,6 @@
-import { Minus, Plus, Trash01 } from "@untitledui/icons";
-import { Button } from "../buttons/button";
-import { ButtonUtility } from "../buttons/button-utility";
+import { Minus, Plus, Trash01 } from '@untitledui/icons';
+import { Button } from '../buttons/button';
+import { ButtonUtility } from '../buttons/button-utility';
 
 export const CartItem = ({
   image,
@@ -36,6 +36,7 @@ export const CartItem = ({
             color="tertiary"
             size="xs"
             iconLeading={Minus}
+            aria-label="Уменьшить количество"
             onClick={onDecreaseClick}
           />
 
@@ -47,12 +48,15 @@ export const CartItem = ({
             color="tertiary"
             size="xs"
             iconLeading={Plus}
+            aria-label="Увеличить количество"
             onClick={onIncreaseClick}
           />
         </div>
 
         <div className="min-w-24 text-end ps-4">
-          <p className="text-lg font-bold text-primary">{price * count} ₽</p>
+          <p className="text-lg font-bold text-primary">
+            {Number((price * count).toFixed(2)).toLocaleString('ru-RU')} ₽
+          </p>{' '}
         </div>
       </div>
     </div>

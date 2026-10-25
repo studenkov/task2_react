@@ -1,15 +1,10 @@
 import { type FC, type ReactNode } from "react";
-import { Bell01, LifeBuoy01, SearchLg, Settings01 } from "@untitledui/icons";
+import { Bell01, SearchLg, Settings01 } from "@untitledui/icons";
 import { TabList, Tabs } from "@/components/application/tabs/tabs";
-import { BadgeWithDot } from "@/components/base/badges/badges";
 import { DropdownAccountButton } from "@/components/base/dropdown/dropdown-account-button";
 import { Input } from "@/components/base/input/input";
 import { cx } from "@/utils/cx";
-import { MobileNavigationHeader } from "./base-components/mobile-header";
-import { NavAccountCard } from "./base-components/nav-account-card";
 import { NavButton } from "./base-components/nav-button";
-import { NavItemBase } from "./base-components/nav-item";
-import { NavList } from "./base-components/nav-list";
 
 type NavItem = {
   /** Label text for the nav item. */
@@ -137,49 +132,25 @@ export const HeaderNavigationBase = ({
 
   return (
     <>
-      <MobileNavigationHeader>
-        <aside className="flex h-full max-w-full flex-col justify-between overflow-auto bg-primary pt-4">
-          <div className="flex flex-col gap-5 px-4">
-            <Input
-              size="md"
-              aria-label="Search"
-              placeholder="Search"
-              icon={SearchLg}
-            />
-          </div>
+      <header className="flex h-14 items-center justify-between gap-2 border-b border-secondary bg-primary px-3 pl-4 lg:hidden">
+        <nav className="flex min-w-0">
+          <ul className="flex items-center gap-0.5">
+            {items.map((item) => (
+              <li key={item.label}>
+                <NavButton
+                  current={isActive(item)}
+                  href={item.href}
+                  className="whitespace-nowrap"
+                >
+                  {item.label}
+                </NavButton>
+              </li>
+            ))}
+          </ul>
+        </nav>
 
-          <NavList items={items} />
-
-          <div className="mt-auto flex flex-col gap-3 p-4">
-            <div className="flex flex-col">
-              <NavItemBase type="link" href="#" icon={LifeBuoy01}>
-                Support
-              </NavItemBase>
-              <NavItemBase
-                type="link"
-                href="#"
-                icon={Settings01}
-                badge={
-                  <BadgeWithDot color="success" type="modern" size="sm">
-                    Online
-                  </BadgeWithDot>
-                }
-              >
-                Settings
-              </NavItemBase>
-              <NavItemBase
-                type="link"
-                href="https://www.untitledui.com/"
-                icon={Settings01}
-              >
-                Open in browser
-              </NavItemBase>
-            </div>
-
-            <NavAccountCard />
-          </div>
-        </aside>
-      </MobileNavigationHeader>
+        <div className="flex items-center gap-2">{actions ?? null}</div>
+      </header>
 
       <header className="max-lg:hidden">
         <section
@@ -195,7 +166,7 @@ export const HeaderNavigationBase = ({
             )}
           >
             <nav>
-              <ul className="flex items-center gap-0.5">
+          <ul className="flex items-center gap-0.5 overflow-x-auto">
                 {items.map((item) => (
                   <li key={item.label}>
                     <NavButton current={isActive(item)} href={item.href}>

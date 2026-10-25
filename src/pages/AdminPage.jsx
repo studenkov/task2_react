@@ -15,7 +15,7 @@ import {
   AlertCircle,
 } from '@untitledui/icons';
 
-const TABLES = [
+const tables = [
   { key: 'products', title: 'Товары' },
   { key: 'categories', title: 'Категории' },
   { key: 'users', title: 'Пользователи' },
@@ -27,7 +27,7 @@ const TABLES = [
   { key: 'cart_items', title: 'Корзины' },
 ];
 
-const TABLE_COLUMNS = {
+const tableColumns = {
   products: [
     'id',
     'category_id',
@@ -75,6 +75,9 @@ const TABLE_COLUMNS = {
   cart_items: ['id', 'user_id', 'product_id', 'quantity'],
 };
 
+const brandBadgeClass =
+  'inline-flex w-max items-center rounded-md bg-fg-brand-primary/10 px-2 py-0.5 text-xs font-semibold text-fg-brand-primary';
+
 export default function AdminPage() {
   const { session, refreshUser } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -82,11 +85,11 @@ export default function AdminPage() {
 
   const activeTable = useMemo(() => {
     const fromUrl = searchParams.get('tab');
-    if (fromUrl && TABLES.some((t) => t.key === fromUrl)) {
+    if (fromUrl && tables.some((t) => t.key === fromUrl)) {
       return fromUrl;
     }
     const fromStorage = localStorage.getItem('admin_active_table');
-    if (fromStorage && TABLES.some((t) => t.key === fromStorage)) {
+    if (fromStorage && tables.some((t) => t.key === fromStorage)) {
       return fromStorage;
     }
     return 'products';
@@ -183,7 +186,7 @@ export default function AdminPage() {
 
   const columns = useMemo(() => {
     if (rows.length === 0) {
-      return TABLE_COLUMNS[activeTable] || [];
+      return tableColumns[activeTable] || [];
     }
     return Object.keys(rows[0]);
   }, [rows, activeTable]);
@@ -352,7 +355,7 @@ export default function AdminPage() {
     );
   }
 
-  const activeTableMeta = TABLES.find((t) => t.key === activeTable);
+  const activeTableMeta = tables.find((t) => t.key === activeTable);
 
   return (
     <section className="mx-auto flex w-full max-w-container flex-col gap-8 py-12 px-8">
@@ -366,7 +369,7 @@ export default function AdminPage() {
       </div>
 
       <div className="flex flex-wrap gap-2 border-b border-secondary pb-3">
-        {TABLES.map((tab) => (
+        {tables.map((tab) => (
           <button
             key={tab.key}
             type="button"
@@ -603,7 +606,7 @@ export default function AdminPage() {
                         return (
                           <Table.Cell key={col} id={`${row.id}-${col}`}>
                             {row.coupon_code ?
-                              <span className="inline-flex items-center rounded-md bg-fg-brand-primary/10 px-2 py-0.5 text-xs font-semibold text-fg-brand-primary">
+                              <span className={brandBadgeClass}>
                                 {row.coupon_code} (-{row.coupon_discount}%)
                               </span>
                             : <span className="text-xs text-tertiary">—</span>}
@@ -614,14 +617,14 @@ export default function AdminPage() {
                       if (activeTable === 'users' && col === 'role') {
                         return (
                           <Table.Cell key={col} id={`${row.id}-${col}`}>
-                            <span
-                              className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ${
-                                row.role === 'admin' ?
-                                  'border border-secondary bg-primary font-semibold text-fg-brand-primary'
-                                : 'text-primary'
-                              }`}>
-                              {row.role || '—'}
-                            </span>
+                            {row.role === 'admin' ?
+                              <span className={brandBadgeClass}>
+                                {row.role}
+                              </span>
+                            : <span className="text-xs text-primary">
+                                {row.role || '—'}
+                              </span>
+                            }
                           </Table.Cell>
                         );
                       }

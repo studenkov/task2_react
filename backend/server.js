@@ -805,7 +805,6 @@ const ALLOWED_ADMIN_TABLES = [
   'cart_items',
 ];
 
-// Получение всех записей выбранной таблицы
 app.get('/api/admin/tables/:table', async (req, res) => {
   try {
     const { table } = req.params;
@@ -842,7 +841,6 @@ app.get('/api/admin/tables/:table', async (req, res) => {
   }
 });
 
-// Добавление новой записи в таблицу
 app.post('/api/admin/tables/:table', async (req, res) => {
   try {
     const { table } = req.params;
@@ -948,7 +946,6 @@ app.post('/api/admin/tables/:table', async (req, res) => {
   }
 });
 
-// Обновление существующей записи в таблице
 app.put('/api/admin/tables/:table/:id', async (req, res) => {
   try {
     const { table, id } = req.params;
@@ -1056,7 +1053,6 @@ app.put('/api/admin/tables/:table/:id', async (req, res) => {
   }
 });
 
-// Удаление записи из таблицы
 app.delete('/api/admin/tables/:table/:id', async (req, res) => {
   try {
     const { table, id } = req.params;

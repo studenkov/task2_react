@@ -7,8 +7,8 @@ const { Pool } = require('pg');
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
-const JWT_SECRET = process.env.JWT_SECRET || 'SUPER_LONG_JWT_TOKEN_ULTRA_3000';
+const PORT = process.env.PORT;
+const JWT_SECRET = process.env.JWT_SECRET;
 
 app.use(cors());
 app.use(express.json());
@@ -60,7 +60,7 @@ function authenticateToken(req, res, next) {
   });
 }
 
-function optionalAuthenticate(req, res, next) {
+function optionalAuthenticate(req, _res, next) {
   const authHeader = req.headers['authorization'];
   const token =
     authHeader && authHeader.startsWith('Bearer ') ?
@@ -68,11 +68,7 @@ function optionalAuthenticate(req, res, next) {
     : null;
 
   if (token) {
-    try {
-      req.user = jwt.verify(token, JWT_SECRET);
-    } catch {
-      // Игнорируем недействительный токен для публичных запросов
-    }
+    req.user = jwt.verify(token, JWT_SECRET);
   } else {
     const fallbackId = req.query.user_id || req.body?.user_id;
     if (fallbackId) {
@@ -94,14 +90,14 @@ pool.on('error', (err) => {
   console.error('Ошибка пула PostgreSQL:', err);
 });
 
-app.get('/api/test', (req, res) => {
+app.get('/api/test', (_req, res) => {
   res.json({
     message: 'API магазина роутеров работает!',
     timestamp: new Date(),
   });
 });
 
-app.get('/api/test-db', async (req, res) => {
+app.get('/api/test-db', async (_req, res) => {
   try {
     const result = await pool.query('SELECT NOW() as current_time');
     res.json({
@@ -113,7 +109,7 @@ app.get('/api/test-db', async (req, res) => {
   }
 });
 
-app.get('/api/categories', async (req, res) => {
+app.get('/api/categories', async (_req, res) => {
   try {
     const result = await pool.query('SELECT * FROM categories ORDER BY id ASC');
     res.json(result.rows);
@@ -124,24 +120,9 @@ app.get('/api/categories', async (req, res) => {
 
 app.post('/api/categories', async (req, res) => {
   try {
-    const { name, user_id } = req.body;
+    if (!(await verifyAdmin(req, res))) return;
 
-    if (!user_id) {
-      return res.status(401).json({ error: 'Требуется авторизация' });
-    }
-
-    const userRoleQuery = await pool.query(
-      `SELECT r.name AS role 
-       FROM users u 
-       JOIN roles r ON u.role_id = r.id 
-       WHERE u.id = $1`,
-      [user_id],
-    );
-
-    const userRole = userRoleQuery.rows[0]?.role?.toLowerCase();
-    if (userRole !== 'admin') {
-      return res.status(403).json({ error: 'Недостаточно прав' });
-    }
+    const { name } = req.body;
 
     if (!name?.trim()) {
       return res.status(400).json({ error: 'Название категории обязательно' });
@@ -159,11 +140,16 @@ app.post('/api/categories', async (req, res) => {
 
 app.put('/api/categories/:id', async (req, res) => {
   try {
+    if (!(await verifyAdmin(req, res))) return;
+
     const { id } = req.params;
     const { name } = req.body;
+    if (!name?.trim()) {
+      return res.status(400).json({ error: 'Название категории обязательно' });
+    }
     const result = await pool.query(
       'UPDATE categories SET name = $1 WHERE id = $2 RETURNING *',
-      [name, id],
+      [name.trim(), id],
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Категория не найдена' });
@@ -176,8 +162,16 @@ app.put('/api/categories/:id', async (req, res) => {
 
 app.delete('/api/categories/:id', async (req, res) => {
   try {
+    if (!(await verifyAdmin(req, res))) return;
+
     const { id } = req.params;
-    await pool.query('DELETE FROM categories WHERE id = $1', [id]);
+    const result = await pool.query(
+      'DELETE FROM categories WHERE id = $1 RETURNING id',
+      [id],
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Категория не найдена' });
+    }
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -252,6 +246,8 @@ app.get('/api/products/:id', async (req, res) => {
 
 app.post('/api/products', async (req, res) => {
   try {
+    if (!(await verifyAdmin(req, res))) return;
+
     const {
       category_id,
       name,
@@ -288,6 +284,8 @@ app.post('/api/products', async (req, res) => {
 
 app.put('/api/products/:id', async (req, res) => {
   try {
+    if (!(await verifyAdmin(req, res))) return;
+
     const { id } = req.params;
     const {
       category_id,
@@ -331,8 +329,16 @@ app.put('/api/products/:id', async (req, res) => {
 
 app.delete('/api/products/:id', async (req, res) => {
   try {
+    if (!(await verifyAdmin(req, res))) return;
+
     const { id } = req.params;
-    await pool.query('DELETE FROM products WHERE id = $1', [id]);
+    const result = await pool.query(
+      'DELETE FROM products WHERE id = $1 RETURNING id',
+      [id],
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Товар не найден' });
+    }
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -410,7 +416,8 @@ app.post('/api/cart', optionalAuthenticate, async (req, res) => {
     if (existing.rows.length > 0) {
       const primaryId = existing.rows[0].id;
       const totalQty =
-        existing.rows.reduce((sum, r) => sum + r.quantity, 0) + Number(quantity);
+        existing.rows.reduce((sum, r) => sum + r.quantity, 0) +
+        Number(quantity);
 
       const updated = await pool.query(
         'UPDATE cart_items SET quantity = $1 WHERE id = $2 RETURNING *',
@@ -419,7 +426,9 @@ app.post('/api/cart', optionalAuthenticate, async (req, res) => {
 
       if (existing.rows.length > 1) {
         const extraIds = existing.rows.slice(1).map((r) => r.id);
-        await pool.query('DELETE FROM cart_items WHERE id = ANY($1)', [extraIds]);
+        await pool.query('DELETE FROM cart_items WHERE id = ANY($1)', [
+          extraIds,
+        ]);
       }
 
       return res.json(updated.rows[0]);
@@ -644,9 +653,7 @@ async function verifyAdmin(reqOrId, res) {
       }
     } else {
       userId =
-        reqOrId.query?.admin_id ||
-        reqOrId.body?.admin_id ||
-        reqOrId.user?.id;
+        reqOrId.query?.admin_id || reqOrId.body?.admin_id || reqOrId.user?.id;
     }
   } else {
     userId = reqOrId;
@@ -1067,7 +1074,11 @@ app.delete('/api/admin/tables/:table/:id', async (req, res) => {
       return res.status(404).json({ error: 'Запись не найдена' });
     }
 
-    res.json({ success: true, message: 'Запись удалена', id: result.rows[0].id });
+    res.json({
+      success: true,
+      message: 'Запись удалена',
+      id: result.rows[0].id,
+    });
   } catch (error) {
     if (error.code === '23503') {
       return res.status(400).json({

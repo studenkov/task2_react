@@ -4,6 +4,7 @@ import { Button } from '../buttons/button';
 export const Card = ({
   image,
   title,
+  description,
   price,
   originalPrice,
   onAddClick,
@@ -24,6 +25,12 @@ export const Card = ({
         <p className="w-full py-2 text-lg font-semibold text-primary hover:text-fg-brand-secondary truncate">
           {title}
         </p>
+
+        {description && (
+          <p className="text-xs text-tertiary line-clamp-2 mb-2">
+            {description}
+          </p>
+        )}
 
         <div className="flex items-baseline gap-2">
           <span className="text-xl font-bold text-fg-brand-primary">

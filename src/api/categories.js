@@ -1,3 +1,5 @@
+import { getAuthHeaders } from './auth';
+
 const API_URL = 'http://localhost:3001/api/categories';
 
 export async function getCategories() {
@@ -15,7 +17,10 @@ export async function getCategoryById(id) {
 export async function createCategory(category) {
   const response = await fetch(API_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthHeaders(),
+    },
     body: JSON.stringify(category),
   });
   if (!response.ok) throw new Error('Ошибка при создании категории');
@@ -25,7 +30,10 @@ export async function createCategory(category) {
 export async function updateCategory(id, category) {
   const response = await fetch(`${API_URL}/${id}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthHeaders(),
+    },
     body: JSON.stringify(category),
   });
   if (!response.ok) throw new Error('Ошибка при обновлении категории');
@@ -35,6 +43,7 @@ export async function updateCategory(id, category) {
 export async function deleteCategory(id) {
   const response = await fetch(`${API_URL}/${id}`, {
     method: 'DELETE',
+    headers: getAuthHeaders(),
   });
   if (!response.ok) throw new Error('Ошибка при удалении категории');
 }

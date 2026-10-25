@@ -146,6 +146,7 @@ const HomePage = () => {
                     <Card
                       image={imageUrl}
                       title={title}
+                      description={product.description}
                       price={price}
                       originalPrice={hasDiscount ? originalPrice : null}
                       onAddClick={() =>

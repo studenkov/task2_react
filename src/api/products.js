@@ -1,3 +1,5 @@
+import { getAuthHeaders } from './auth';
+
 const API_URL = 'http://localhost:3001/api/products';
 
 export async function getProducts(categoryIds = []) {
@@ -17,7 +19,10 @@ export async function getProductById(id) {
 export async function createProduct(product) {
   const response = await fetch(API_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthHeaders(),
+    },
     body: JSON.stringify(product),
   });
   if (!response.ok) throw new Error('Ошибка при создании товара');
@@ -27,7 +32,10 @@ export async function createProduct(product) {
 export async function updateProduct(id, product) {
   const response = await fetch(`${API_URL}/${id}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthHeaders(),
+    },
     body: JSON.stringify(product),
   });
   if (!response.ok) throw new Error('Ошибка при обновлении товара');
@@ -37,6 +45,7 @@ export async function updateProduct(id, product) {
 export async function deleteProduct(id) {
   const response = await fetch(`${API_URL}/${id}`, {
     method: 'DELETE',
+    headers: getAuthHeaders(),
   });
   if (!response.ok) throw new Error('Ошибка при удалении товара');
 }
